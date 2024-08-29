@@ -1,0 +1,20 @@
+package structs
+
+type Process struct {
+	Name             string
+	ArrivalTime      int //asumo que se refiere a unidad de tiempo
+	BurstNeeded      int //rafagas de cpu
+	BurstDuration    int
+	IOBurstDuration  int
+	ExternalPriority int
+}
+
+func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDuration, ExternalPriority int) *Process {
+	return &Process{
+		Name:             Name,
+		ArrivalTime:      ArrivalTime,
+		BurstDuration:    BurstDuration,
+		IOBurstDuration:  IOBurstDuration,
+		ExternalPriority: ExternalPriority,
+	}
+}
