@@ -1,26 +1,84 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
+	//"github/NeichS/simu/scheduling"
 	"github/NeichS/simu/structs"
+	"log"
+	"strconv"
+
+	"os"
 
 	"github.com/nexidian/gocliselect"
-	"os"
 )
 
-func main() {
-	fmt.Print("Creamos un proceso\n")
+func strToInt(text string) int {
+	num, err := strconv.ParseInt(text, 10, 0)
+	if err != nil {
+		fmt.Println("Error al convertir el string a entero:", err)
+		log.Fatal(err)
+	}
 
+	return int(num)
+}
+
+func extraerProcesos(file *os.File) (*[]structs.Process, error) {
+	procesos := make([]structs.Process, 0)
+
+	reader := csv.NewReader(file)
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(records) > 0 {
+        records = records[1:] // Ignorar el encabezado
+    }
+
+	for _, record := range records {
+			tiempoArribo := strToInt(record[1])
+			rafagasNecesarias := strToInt(record[2])
+			duracionRafaga := strToInt(record[3])
+			duracionRafagaIO := strToInt(record[4])
+			prioridadExterna := strToInt(record[5])
+
+			proceso := structs.NewProcess(record[0], tiempoArribo, rafagasNecesarias, duracionRafaga, duracionRafagaIO, prioridadExterna)
+			procesos = append(procesos, *proceso)
+	}
+
+	return &procesos, nil
+}
+
+func main() {
+
+	var param string
 	if len(os.Args) > 1 {
 		// Acceder al primer argumento después del nombre del programa
-		param := os.Args[1]
+		param = os.Args[1]
 		fmt.Printf("El parámetro es: %s\n", param)
 	} else {
 		fmt.Println("No se proporcionó ningún parámetro.")
 	}
 
-	proc := structs.NewProcess("vscode", 1, 3, 4, 5, 6)
-	fmt.Printf("%s\n", proc.Name)
+	fileDir := "csv-files/" + param
+
+	file, err := os.Open(fileDir)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//leemos todos los procesos del archivo y los ponemos en un slice
+
+	procesos, err := extraerProcesos(file)
+
+	fmt.Println(procesos)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	menu := gocliselect.NewMenu("Elige una politica de scheduling")
 
@@ -38,6 +96,8 @@ func main() {
 	case "fcfs":
 		break
 	case "exPriority":
+
+		//scheduling.StartExternalPriority(procesos)
 		break
 	case "spn":
 		break

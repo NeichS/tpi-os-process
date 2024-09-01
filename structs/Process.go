@@ -7,6 +7,7 @@ type Process struct {
 	BurstDuration    int
 	IOBurstDuration  int
 	ExternalPriority int
+	State            string
 }
 
 func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDuration, ExternalPriority int) *Process {
@@ -16,5 +17,6 @@ func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDur
 		BurstDuration:    BurstDuration,
 		IOBurstDuration:  IOBurstDuration,
 		ExternalPriority: ExternalPriority,
+		State:            "secondary memory",
 	}
 }
