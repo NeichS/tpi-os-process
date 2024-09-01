@@ -70,7 +70,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//leemos todos los procesos del archivo y los ponemos en un slice
 
 	procesos, err := extraerProcesos(file)
 
