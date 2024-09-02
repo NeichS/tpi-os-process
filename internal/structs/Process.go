@@ -17,6 +17,6 @@ func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDur
 		BurstDuration:    BurstDuration,
 		IOBurstDuration:  IOBurstDuration,
 		ExternalPriority: ExternalPriority,
-		State:            "secondary memory",
+		State:            "New",
 	}
 }
