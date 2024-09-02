@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	//"github/NeichS/simu/scheduling"
-	"github/NeichS/simu/structs"
+	"github/NeichS/simu/internal/structs"
 	"log"
 	"strconv"
 
