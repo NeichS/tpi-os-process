@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+
 	//"github/NeichS/simu/scheduling"
+	"github/NeichS/simu/cmd/scheduling"
 	"github/NeichS/simu/internal/structs"
 	"log"
 	"strconv"
@@ -23,9 +25,10 @@ func strToInt(text string) int {
 	return int(num)
 }
 
+var procesosTotales *int
 func extraerProcesos(file *os.File) (*[]structs.Process, error) {
 	procesos := make([]structs.Process, 0)
-
+	
 	reader := csv.NewReader(file)
 
 	records, err := reader.ReadAll()
@@ -37,7 +40,9 @@ func extraerProcesos(file *os.File) (*[]structs.Process, error) {
         records = records[1:] // Ignorar el encabezado
     }
 
+	*procesosTotales = 0
 	for _, record := range records {
+			*procesosTotales++
 			tiempoArribo := strToInt(record[1])
 			rafagasNecesarias := strToInt(record[2])
 			duracionRafaga := strToInt(record[3])
@@ -95,7 +100,7 @@ func main() {
 	case "fcfs":
 		break
 	case "exPriority":
-
+		scheduling.StartExternalPriority(procesos, *procesosTotales)
 		//scheduling.StartExternalPriority(procesos)
 		break
 	case "spn":

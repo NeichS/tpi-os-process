@@ -1,5 +1,5 @@
 Nombre,Tiempo de arribo,Rafagas necesarias,Duracion de la rafaga,Duracion de la rafaga I/O,Prioridad externa
-firefox,120,1,518,579,0
+firefox,1,3,5,10,0
 excel,126,3,164,926,2
 python program-1,613,5,47,858,2
 firefox,88,2,704,19,4
