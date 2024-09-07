@@ -3,9 +3,8 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-
-	//"github/NeichS/simu/scheduling"
-	"github/NeichS/simu/cmd/scheduling"
+	"github/NeichS/simu/cmd/scheduling/fcfs"
+	roundrobin "github/NeichS/simu/cmd/scheduling/roundRobin"
 	"github/NeichS/simu/internal/structs"
 	"log"
 	"strconv"
@@ -27,8 +26,8 @@ func strToInt(text string) int {
 
 var procesosTotales int
 
-func extraerProcesos(file *os.File) (*[]structs.Process, error) {
-	procesos := make([]structs.Process, 0)
+func extraerProcesos(file *os.File) ([]*structs.Process, error) {
+	var procesos []*structs.Process
 
 	reader := csv.NewReader(file)
 
@@ -51,10 +50,10 @@ func extraerProcesos(file *os.File) (*[]structs.Process, error) {
 		prioridadExterna := strToInt(record[5])
 
 		proceso := structs.NewProcess(record[0], tiempoArribo, rafagasNecesarias, duracionRafaga, duracionRafagaIO, prioridadExterna)
-		procesos = append(procesos, *proceso)
+		procesos = append(procesos, proceso)
 	}
 
-	return &procesos, nil
+	return procesos, nil
 }
 
 func main() {
@@ -85,7 +84,7 @@ func main() {
 	menu := gocliselect.NewMenu("Elige una politica de scheduling")
 
 	menu.AddItem("Round robin", "rr")
-	menu.AddItem("First come first server", "fcfs")
+	menu.AddItem("First come first serve", "fcfs")
 	menu.AddItem("External priority", "exPriority")
 	menu.AddItem("Short process next", "spn")
 	menu.AddItem("Shortest remaining time next", "srtn")
@@ -149,15 +148,15 @@ func main() {
 				fmt.Println("Error: ingrese un número válido para el quantum.")
 			}
 		}
-		scheduling.StartRoundRobin(quantum)
 	}
 
 	switch choice {
 	case "rr":
-		scheduling.StartRoundRobin(quantum)
+		roundrobin.StartRoundRobin(procesos, procesosTotales,tip, tfp, tcp, quantum)
 	case "fcfs":
+		fcfs.StartFcfs(procesos, procesosTotales,tip, tfp, tcp)
 	case "exPriority":
-		scheduling.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
+		//scheduling.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
 		//scheduling.StartExternalPriority(procesos)
 	case "spn":
 	case "srtn":

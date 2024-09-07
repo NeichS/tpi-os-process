@@ -1,7 +1,7 @@
 package structs
 
 type Process struct {
-	PID             string
+	PID              string
 	ArrivalTime      int //asumo que se refiere a unidad de tiempo
 	BurstNeeded      int //rafagas de cpu
 	BurstDuration    int
@@ -13,8 +13,9 @@ type Process struct {
 
 func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDuration, ExternalPriority int) *Process {
 	return &Process{
-		PID:             Name,
+		PID:              Name,
 		ArrivalTime:      ArrivalTime,
+		BurstNeeded:      BurstNeeded,
 		BurstDuration:    BurstDuration,
 		IOBurstDuration:  IOBurstDuration,
 		ExternalPriority: ExternalPriority,
