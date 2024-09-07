@@ -30,13 +30,13 @@ func (l *LinkedList) Remove(name string) {
     if l.Head == nil {
         return
     }
-    if l.Head.Process.Name == name {
+    if l.Head.Process.PID == name {
         l.Head = l.Head.Next
         return
     }
     current := l.Head
     for current.Next != nil {
-        if current.Next.Process.Name == name {
+        if current.Next.Process.PID == name {
             current.Next = current.Next.Next
             return
         }
@@ -47,7 +47,7 @@ func (l *LinkedList) Remove(name string) {
 func (l *LinkedList) Find(name string) *Process {
     current := l.Head
     for current != nil {
-        if current.Process.Name == name {
+        if current.Process.PID == name {
             return current.Process
         }
         current = current.Next
