@@ -9,9 +9,9 @@
 
 - El valor de la prioridad externa [0 , 5] siendo 0 el mas prioritario
 
-- El tiempo avanza por cada uno de los eventos que efectivamente suceden
+- El tiempo avanza por vuelta
 
-**Con evento me refiero a los listados en la consigna:**  
+**Con vuelta me refiero a la ocurrencia de todos los eventos siguientes:**  
 
 1. Corriendo a Terminado.
 2. Corriendo a Bloqueado.
@@ -25,4 +25,4 @@
 
 - En cada uno de los eventos si no se hace nada no se suma tiempo 
 
-- El tip es el tiempo en el que el SO se fija si hay procesos nuevos para agregarlos a listo
+- El tip es un tiempo que se agrega si y solo si el sistema operativo a aceptado un proceso de nuevo a listo

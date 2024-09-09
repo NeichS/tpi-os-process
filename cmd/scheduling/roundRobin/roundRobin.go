@@ -93,14 +93,19 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 		}
 
 		//nuevo a listo
+		atleastone := false
 		for i := len(procesosNuevos) - 1; i >= 0; i-- {
 			if unidadesDeTiempo >= procesosNuevos[i].ArrivalTime {
+				atleastone = true
 				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
 				procesosNuevos[i].State = "ready"
 				listaProcesosListos = append(listaProcesosListos, procesosNuevos[i]) //falta considerar tip
 				colaProcesosListos.Enqueue(procesosNuevos[i])
 				procesosNuevos = remove(procesosNuevos, *procesosNuevos[i])
 			}
+		}
+		if atleastone {
+			updateAllCounters(tip)
 		}
 
 		//listo a corriendo
