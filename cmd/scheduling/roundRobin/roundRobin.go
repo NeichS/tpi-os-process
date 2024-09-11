@@ -3,9 +3,10 @@ package roundrobin
 import (
 	"fmt"
 	. "github/NeichS/simu/internal/structs"
+	s "github/NeichS/simu/cmd/scheduling"
 )
 
-func updateAllCounters(tiempo int) {
+func updateAllCounters(tiempo int, so ...string) {
 
 	unidadesDeTiempo = unidadesDeTiempo + tiempo
 
@@ -18,6 +19,10 @@ func updateAllCounters(tiempo int) {
 	}
 
 	quantumUsage += tiempo
+
+	if len(so) == 0 {
+		tiempoSO++
+	}
 }
 
 var procesoEjecutando *Process
@@ -29,7 +34,7 @@ var listaProcesosBloqueados []*Process
 
 var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
-
+var tiempoSO int
 var quantumUsage int
 
 func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, quantum int) error {
@@ -39,8 +44,8 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 	colaProcesosListos = *NewQueue()
 	unidadesDeTiempo = 0
 
-	red := "\033[31m"
-	reset := "\033[0m"
+	tiempoPrimerProceso := -1
+	tiempoSO = 0
 
 	quantumUsage = 0
 
@@ -54,6 +59,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 				cantidadProcesosTerminados++
 				procesoEjecutando.State = "finished"
 				fmt.Printf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)
+				procesoEjecutando.TiempoRetorno = unidadesDeTiempo
 				listaProcesosTerminados = append(listaProcesosTerminados, procesoEjecutando)
 				procesoEjecutando = nil
 				quantumUsage = 0
@@ -70,7 +76,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 				}
 			}
 			//corriendo a listo 
-			if quantumUsage == quantum {
+			if quantumUsage == quantum && procesoEjecutando != nil {
 				listaProcesosListos = append(listaProcesosListos, procesoEjecutando)
 				colaProcesosListos.Enqueue(procesoEjecutando)
 				fmt.Printf("Tiempo %d: El proceso %s uso todo el quantum\n", unidadesDeTiempo, procesoEjecutando.PID)
@@ -96,6 +102,9 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 		atleastone := false
 		for i := len(procesosNuevos) - 1; i >= 0; i-- {
 			if unidadesDeTiempo >= procesosNuevos[i].ArrivalTime {
+				if tiempoPrimerProceso == -1 {
+					tiempoPrimerProceso = procesosNuevos[i].ArrivalTime 
+				}
 				atleastone = true
 				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
 				procesosNuevos[i].State = "ready"
@@ -120,17 +129,13 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 
 		if procesoEjecutando != nil {
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
+			updateAllCounters(1, "tiempo que no usa el SO")
+		} else {
+			updateAllCounters(1, "nadie usa el cpu") 
 		}
-		updateAllCounters(1)
 
-		fmt.Printf("%sTiempo %d: Procesos finalizados %d %s \n", string(red), unidadesDeTiempo, cantidadProcesosTerminados, string(reset))
 	}
 
-	for _, element := range listaProcesosTerminados {
-
-		fmt.Printf("Descripcion del PID: %s\n", element.PID)
-		fmt.Printf("Tiempo en estado listo: %d\n", element.PCB.TiempoEnListo)
-	}
-	
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
 	return nil
 }

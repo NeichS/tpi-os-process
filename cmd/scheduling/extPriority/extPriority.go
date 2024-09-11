@@ -3,9 +3,10 @@ package extpriority
 import (
 	"fmt"
 	. "github/NeichS/simu/internal/structs"
+	s "github/NeichS/simu/cmd/scheduling"
 )
 
-func updateAllCounters(tiempo int) {
+func updateAllCounters(tiempo int, so ...string) {
 
 	unidadesDeTiempo = unidadesDeTiempo + tiempo
 
@@ -17,6 +18,11 @@ func updateAllCounters(tiempo int) {
 		proceso.PCB.TiempoRafagaIOEmitido += tiempo
 	}
 
+	//siempre le sumo tiempo de uso al SO excepto cuando lo usa un proceso o se desperdicia la rafaga
+	if len(so) == 0 {
+		tiempoSO++
+	}
+	
 }
 
 var procesoEjecutando *Process
@@ -25,9 +31,9 @@ var colaProcesosListos Queue
 var listaProcesosListos []*Process
 
 var listaProcesosBloqueados []*Process
-
 var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
+var tiempoSO int
 
 func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) error {
 
@@ -35,20 +41,22 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 
 	colaProcesosListos = *NewQueue()
 	unidadesDeTiempo = 0
-
-	red := "\033[31m"
-	reset := "\033[0m"
-
+ 
+	// red := "\033[31m"
+	// reset := "\033[0m"
+	
+	tiempoPrimerProceso := -1
+	tiempoSO = 0
 	for cantidadProcesosTerminados < procesosTotales {
 
 		if procesoEjecutando != nil {
 			//corriendo a terminado
 			if procesoEjecutando.PCB.RafagasCompletadas == procesoEjecutando.BurstNeeded {
-
 				updateAllCounters(tfp)
 				cantidadProcesosTerminados++
 				procesoEjecutando.State = "finished"
 				fmt.Printf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)
+				procesoEjecutando.TiempoRetorno = unidadesDeTiempo
 				listaProcesosTerminados = append(listaProcesosTerminados, procesoEjecutando)
 				procesoEjecutando = nil
 			}
@@ -97,6 +105,9 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 		atleastone := false
 		for i := len(procesosNuevos) - 1; i >= 0; i-- {
 			if unidadesDeTiempo >= procesosNuevos[i].ArrivalTime {
+				if tiempoPrimerProceso == -1 {
+					tiempoPrimerProceso = procesosNuevos[i].ArrivalTime 
+				}
 				atleastone = true
 				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
 				procesosNuevos[i].State = "ready"
@@ -121,17 +132,13 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 
 		if procesoEjecutando != nil {
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
+			updateAllCounters(1, "tiempo que no usa el SO")
+		} else {
+			updateAllCounters(1, "nadie usa el cpu") 
 		}
-		updateAllCounters(1)
-
-		fmt.Printf("%sTiempo %d: Procesos finalizados %d %s \n", string(red), unidadesDeTiempo, cantidadProcesosTerminados, string(reset))
+		
 	}
 
-	for _, element := range listaProcesosTerminados {
-
-		fmt.Printf("Descripcion del PID: %s\n", element.PID)
-		fmt.Printf("Tiempo en estado listo: %d\n", element.PCB.TiempoEnListo)
-	}
-
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
 	return nil
 }

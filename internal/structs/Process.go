@@ -9,6 +9,8 @@ type Process struct {
 	ExternalPriority int
 	State            string
 	PCB              *PCB
+	TiempoRetorno    int
+	//tiempo retorno medio va a ser calculado tiempoRetorno / BurstDuration * burstNeeded
 }
 
 func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDuration, ExternalPriority int) *Process {
@@ -21,6 +23,7 @@ func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDur
 		ExternalPriority: ExternalPriority,
 		State:            "New",
 		PCB:              NewPCB(),
+		TiempoRetorno:    -1,
 	}
 }
 

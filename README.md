@@ -26,3 +26,5 @@
 - El tip es un tiempo que se agrega si y solo si el sistema operativo a aceptado un proceso de nuevo a listo
 
 - En srt cuando un proceso ejecuta su ultima operacion de entrada y salida, va a volver a requerir procesador pero su remainging time va a ser 0
+
+- El tiempo de retorno se empieza a tomar desde el tiempo de arribo del proceso. Tiempo en el que termina - Tiempo de arribo 

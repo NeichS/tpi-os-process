@@ -1,15 +1,15 @@
 package structs
 
 import (
-	"sync"
 	"sort"
+	"sync"
 )
 
 // Queue es una estructura que representa una cola para manejar procesos
 type Queue struct {
 	items    []*Process // Slice para almacenar los procesos en la cola
-	lock     sync.Mutex         
-	notEmpty *sync.Cond         // Condición para manejar la disponibilidad de elementos
+	lock     sync.Mutex
+	notEmpty *sync.Cond // Condición para manejar la disponibilidad de elementos
 }
 
 // NewQueue crea una nueva cola vacía para procesos
@@ -30,7 +30,6 @@ func (q *Queue) Enqueue(process *Process) {
 	q.notEmpty.Signal()                // Notifica que la cola ya no está vacía
 }
 
-
 func (q *Queue) Dequeue() *Process {
 	q.lock.Lock()
 	defer q.lock.Unlock()
@@ -40,8 +39,8 @@ func (q *Queue) Dequeue() *Process {
 		q.notEmpty.Wait()
 	}
 
-	process := q.items[0]    // Obtiene el primer proceso
-	q.items = q.items[1:]    // Remueve el primer proceso de la cola
+	process := q.items[0] // Obtiene el primer proceso
+	q.items = q.items[1:] // Remueve el primer proceso de la cola
 
 	return process
 }
@@ -62,9 +61,9 @@ func (q *Queue) Size() int {
 
 // Sort ordena los procesos en la cola por prioridad (mayor prioridad primero)
 func (q *Queue) Sort(column ...string) {
-    q.lock.Lock()
-    defer q.lock.Unlock()
-    
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
 	if len(column) > 0 {
 		if column[0] == "remaining" {
 			sort.Slice(q.items, func(i, j int) bool {
@@ -75,9 +74,8 @@ func (q *Queue) Sort(column ...string) {
 			sort.Slice(q.items, func(i, j int) bool {
 				return q.items[i].BurstDuration < q.items[j].BurstDuration
 			})
-		} 
+		}
 	} else {
-		//por defecto ordeno por prioridad externa
 		sort.Slice(q.items, func(i, j int) bool {
 			return q.items[i].ExternalPriority > q.items[j].ExternalPriority
 		})
@@ -86,12 +84,12 @@ func (q *Queue) Sort(column ...string) {
 
 // GetAllSorted devuelve una copia ordenada de todos los procesos sin modificar la cola original
 func (q *Queue) GetAllSorted(column ...string) []*Process {
-    q.lock.Lock()
-    defer q.lock.Unlock()
-    
-    sortedItems := make([]*Process, len(q.items))
-    copy(sortedItems, q.items)
-    
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
+	sortedItems := make([]*Process, len(q.items))
+	copy(sortedItems, q.items)
+
 	if len(column) > 0 {
 		if column[0] == "remaining" {
 			sort.Slice(sortedItems, func(i, j int) bool {
@@ -102,20 +100,19 @@ func (q *Queue) GetAllSorted(column ...string) []*Process {
 			sort.Slice(sortedItems, func(i, j int) bool {
 				return sortedItems[i].BurstDuration < sortedItems[j].BurstDuration
 			})
-		} 
+		}
 	} else {
-		//por defecto ordeno por prioridad externa
 		sort.Slice(sortedItems, func(i, j int) bool {
 			return sortedItems[i].ExternalPriority > sortedItems[j].ExternalPriority
 		})
 	}
-    
-    return sortedItems
+
+	return sortedItems
 }
 
 func (q *Queue) Peek() *Process {
 	q.lock.Lock()
-    defer q.lock.Unlock()
+	defer q.lock.Unlock()
 
 	return q.items[0]
 }
