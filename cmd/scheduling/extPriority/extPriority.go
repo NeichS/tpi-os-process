@@ -35,10 +35,10 @@ var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
 var tiempoSO int
 
-func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) error {
+func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) []string {
 
+	var logs []string
 	cantidadProcesosTerminados := 0
-
 	colaProcesosListos = *NewQueue()
 	unidadesDeTiempo = 0
  
@@ -55,7 +55,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 				updateAllCounters(tfp)
 				cantidadProcesosTerminados++
 				procesoEjecutando.State = "finished"
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)) 
 				procesoEjecutando.TiempoRetorno = unidadesDeTiempo
 				listaProcesosTerminados = append(listaProcesosTerminados, procesoEjecutando)
 				procesoEjecutando = nil
@@ -64,7 +64,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 			if procesoEjecutando != nil {
 				if procesoEjecutando.PCB.TiempoRafagaEmitido == procesoEjecutando.BurstDuration {
 
-					fmt.Printf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID)
+					logs = append(logs, fmt.Sprintf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID) )
 					procesoEjecutando.State = "blocked"
 					listaProcesosBloqueados = append(listaProcesosBloqueados, procesoEjecutando)
 					procesoEjecutando = nil
@@ -76,6 +76,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 					procesoEjecutando.State = "ready"
 					colaProcesosListos.Enqueue(procesoEjecutando)
 					colaProcesosListos.Sort("remaining")
+					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s es interrumpido debido a que hay uno de mayor prioridad en estado listo \n", unidadesDeTiempo, procesoEjecutando.PID) )
 					listaProcesosListos = append(listaProcesosListos, procesoEjecutando)
 					procesoEjecutando = nil
 				}
@@ -94,7 +95,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 					element.PCB.TiempoRafagaEmitido = 0
 					element.PCB.TiempoRafagaIOEmitido = 0
 				}
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID)
+				logs = append(logs,fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID) )
 				colaProcesosListos.Enqueue(element)
 				listaProcesosListos = append(listaProcesosListos, element)
 				colaProcesosListos.Sort()
@@ -109,7 +110,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 					tiempoPrimerProceso = procesosNuevos[i].ArrivalTime 
 				}
 				atleastone = true
-				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID))
 				procesosNuevos[i].State = "ready"
 				listaProcesosListos = append(listaProcesosListos, procesosNuevos[i])
 				colaProcesosListos.Enqueue(procesosNuevos[i])
@@ -127,7 +128,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 			listaProcesosListos = remove(listaProcesosListos, *procesoEjecutando)
 			procesoEjecutando.State = "running"
 			updateAllCounters(tcp)
-			fmt.Printf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID)
+			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))			
 		}
 
 		if procesoEjecutando != nil {
@@ -140,5 +141,6 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 	}
 
 	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
-	return nil
+	
+	return logs
 }

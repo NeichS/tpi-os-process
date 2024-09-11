@@ -153,18 +153,42 @@ func main() {
 		}
 	}
 
+	var logs []string
+
 	switch choice {
 	case "rr":
-		roundrobin.StartRoundRobin(procesos, procesosTotales,tip, tfp, tcp, quantum)
+		logs = roundrobin.StartRoundRobin(procesos, procesosTotales,tip, tfp, tcp, quantum)
 	case "fcfs":
-		fcfs.StartFcfs(procesos, procesosTotales,tip, tfp, tcp)
+		logs = fcfs.StartFcfs(procesos, procesosTotales,tip, tfp, tcp) 
 	case "exPriority":
-		extpriority.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
+		logs = extpriority.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
 	case "spn":
-		spn.StartSPN(procesos, procesosTotales, tip, tfp, tcp)
+		logs = spn.StartSPN(procesos, procesosTotales, tip, tfp, tcp)
 	case "srtn":
-		srt.StartSRT(procesos, procesosTotales, tip, tfp, tcp)
+		logs = srt.StartSRT(procesos, procesosTotales, tip, tfp, tcp)
 	}
+
+	createArchive(logs)
 	fmt.Printf("Choice: %s\n", choice)
 
+}
+
+func createArchive(logs []string) {
+	file, err := os.Create("output/logs.txt")
+	if err != nil {
+		fmt.Println("Error creando el archivo:", err)
+		return
+	}
+	defer file.Close()
+
+	// Escribir cada línea en el archivo
+	for _, line := range logs {
+		_, err := file.WriteString(line + "\n") // Agregamos un salto de línea después de cada string
+		if err != nil {
+			fmt.Println("Error escribiendo en el archivo:", err)
+			return
+		}
+	}
+
+	fmt.Println("Archivo escrito exitosamente")
 }

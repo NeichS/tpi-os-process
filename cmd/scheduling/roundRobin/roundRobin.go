@@ -37,7 +37,7 @@ var unidadesDeTiempo int
 var tiempoSO int
 var quantumUsage int
 
-func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, quantum int) error {
+func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, quantum int) []string {
 
 	cantidadProcesosTerminados := 0
 
@@ -47,6 +47,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
 
+	var logs []string
 	quantumUsage = 0
 
 	for cantidadProcesosTerminados < procesosTotales{
@@ -58,7 +59,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 				updateAllCounters(tfp)
 				cantidadProcesosTerminados++
 				procesoEjecutando.State = "finished"
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID) )
 				procesoEjecutando.TiempoRetorno = unidadesDeTiempo
 				listaProcesosTerminados = append(listaProcesosTerminados, procesoEjecutando)
 				procesoEjecutando = nil
@@ -68,7 +69,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 			if procesoEjecutando != nil {
 				if procesoEjecutando.PCB.TiempoRafagaEmitido == procesoEjecutando.BurstDuration {
 
-					fmt.Printf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID)
+					logs = append(logs, fmt.Sprintf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID))
 					procesoEjecutando.State = "blocked"
 					listaProcesosBloqueados = append(listaProcesosBloqueados, procesoEjecutando)
 					procesoEjecutando = nil
@@ -79,7 +80,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 			if quantumUsage == quantum && procesoEjecutando != nil {
 				listaProcesosListos = append(listaProcesosListos, procesoEjecutando)
 				colaProcesosListos.Enqueue(procesoEjecutando)
-				fmt.Printf("Tiempo %d: El proceso %s uso todo el quantum\n", unidadesDeTiempo, procesoEjecutando.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s uso todo el quantum\n", unidadesDeTiempo, procesoEjecutando.PID) )
 				procesoEjecutando = nil
 				quantumUsage = 0
 			}
@@ -92,7 +93,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 				element.PCB.RafagasCompletadas++
 				element.PCB.TiempoRafagaEmitido = 0
 				element.PCB.TiempoRafagaIOEmitido = 0
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID) )
 				colaProcesosListos.Enqueue(element)
 				listaProcesosListos = append(listaProcesosListos, element)
 			}
@@ -106,7 +107,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 					tiempoPrimerProceso = procesosNuevos[i].ArrivalTime 
 				}
 				atleastone = true
-				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID))
 				procesosNuevos[i].State = "ready"
 				listaProcesosListos = append(listaProcesosListos, procesosNuevos[i]) //falta considerar tip
 				colaProcesosListos.Enqueue(procesosNuevos[i])
@@ -124,7 +125,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 			listaProcesosListos = remove(listaProcesosListos, *procesoEjecutando)
 			procesoEjecutando.State = "running"
 			updateAllCounters(tcp)
-			fmt.Printf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID)
+			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
 		}
 
 		if procesoEjecutando != nil {
@@ -137,5 +138,5 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 	}
 
 	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
-	return nil
+	return logs
 }

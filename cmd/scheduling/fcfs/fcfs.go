@@ -34,7 +34,7 @@ var unidadesDeTiempo int
 
 var tiempoSO int
 
-func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) error {
+func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) []string {
 
 	cantidadProcesosTerminados := 0
 
@@ -43,6 +43,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
+	var logs []string
 
 	for cantidadProcesosTerminados < procesosTotales{
 
@@ -53,7 +54,8 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 				updateAllCounters(tfp)
 				cantidadProcesosTerminados++
 				procesoEjecutando.State = "finished"
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su ejecucion\n", unidadesDeTiempo, procesoEjecutando.PID) )
+				
 				listaProcesosTerminados = append(listaProcesosTerminados, procesoEjecutando)
 				procesoEjecutando = nil
 			}
@@ -61,7 +63,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 			if procesoEjecutando != nil {
 				if procesoEjecutando.PCB.TiempoRafagaEmitido == procesoEjecutando.BurstDuration {
 
-					fmt.Printf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID)
+					logs = append(logs, fmt.Sprintf("Tiempo %d: Se atendio una interrupcion de I/O del proceso %s \n", unidadesDeTiempo, procesoEjecutando.PID))
 					procesoEjecutando.State = "blocked"
 					listaProcesosBloqueados = append(listaProcesosBloqueados, procesoEjecutando)
 					procesoEjecutando = nil
@@ -77,7 +79,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 				element.PCB.RafagasCompletadas++
 				element.PCB.TiempoRafagaEmitido = 0
 				element.PCB.TiempoRafagaIOEmitido = 0
-				fmt.Printf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID))
 				colaProcesosListos.Enqueue(element)
 				listaProcesosListos = append(listaProcesosListos, element)
 			}
@@ -91,7 +93,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 					tiempoPrimerProceso = procesosNuevos[i].ArrivalTime 
 				}
 				atleastone = true
-				fmt.Printf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID)
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s llega al sistema\n", unidadesDeTiempo, procesosNuevos[i].PID))
 				procesosNuevos[i].State = "ready"
 				listaProcesosListos = append(listaProcesosListos, procesosNuevos[i]) //falta considerar tip
 				colaProcesosListos.Enqueue(procesosNuevos[i])
@@ -108,7 +110,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 			listaProcesosListos = remove(listaProcesosListos, *procesoEjecutando)
 			procesoEjecutando.State = "running"
 			updateAllCounters(tcp)
-			fmt.Printf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID)
+			logs = append(logs,fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
 		}
 
 		if procesoEjecutando != nil {
@@ -120,5 +122,5 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) er
 	}
 
 	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
-	return nil
+	return logs
 }
