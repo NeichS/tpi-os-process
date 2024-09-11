@@ -1,8 +1,8 @@
 package spn
 
-import "github/NeichS/simu/internal/structs"
+import s "github/NeichS/simu/internal/structs"
 
-func remove(procesos []*structs.Process, element structs.Process) []*structs.Process {
+func remove(procesos []*s.Process, element s.Process) []*s.Process {
 	index := -1
 	for i, v := range procesos {
 		if v.PID == element.PID {
@@ -18,7 +18,7 @@ func remove(procesos []*structs.Process, element structs.Process) []*structs.Pro
 	return procesos
 }
 
-func contains(slice []structs.Process, item structs.Process) bool {
+func contains(slice []s.Process, item s.Process) bool {
 	for _, element := range slice {
 		if element.PID == item.PID {
 			return true
@@ -26,3 +26,5 @@ func contains(slice []structs.Process, item structs.Process) bool {
 	}
 	return false
 }
+
+

@@ -23,3 +23,7 @@ func NewProcess(Name string, ArrivalTime, BurstNeeded, BurstDuration, IOBurstDur
 		PCB:              NewPCB(),
 	}
 }
+
+func (s Process) GetRemaining() int {
+	return s.BurstDuration - s.PCB.TiempoRafagaEmitido
+}

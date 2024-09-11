@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	extpriority "github/NeichS/simu/cmd/scheduling/extPriority"
 	"github/NeichS/simu/cmd/scheduling/fcfs"
 	roundrobin "github/NeichS/simu/cmd/scheduling/roundRobin"
+	"github/NeichS/simu/cmd/scheduling/spn"
+	"github/NeichS/simu/cmd/scheduling/srt"
 	"github/NeichS/simu/internal/structs"
 	"log"
 	"strconv"
@@ -156,10 +159,11 @@ func main() {
 	case "fcfs":
 		fcfs.StartFcfs(procesos, procesosTotales,tip, tfp, tcp)
 	case "exPriority":
-		//scheduling.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
-		//scheduling.StartExternalPriority(procesos)
+		extpriority.StartExternalPriority(procesos, procesosTotales, tip, tfp, tcp)
 	case "spn":
+		spn.StartSPN(procesos, procesosTotales, tip, tfp, tcp)
 	case "srtn":
+		srt.StartSRT(procesos, procesosTotales, tip, tfp, tcp)
 	}
 	fmt.Printf("Choice: %s\n", choice)
 
