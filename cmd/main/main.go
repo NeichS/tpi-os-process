@@ -168,8 +168,7 @@ func main() {
 		logs = srt.StartSRT(procesos, procesosTotales, tip, tfp, tcp)
 	}
 
-	createArchive(logs)
-	fmt.Printf("Choice: %s\n", choice)
+	createArchive(logs) 
 
 }
 

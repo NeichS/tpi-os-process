@@ -23,5 +23,8 @@ func ImprimirResultados(listaProcesosTerminados []*s.Process, unidadesDeTiempo, 
 	fmt.Println()
 	fmt.Printf("Tiempo retorno de la tanda: %d\n", unidadesDeTiempo - tiempoPrimerProceso)
 	fmt.Printf("Tiempo medio de retorno de la tanda: %d\n",sumaTiempos / procesosTotales)
-	fmt.Printf("Tiempo de CPU utilizado por el SO: %d\n", tiempoSO)
+	procesosUso := (unidadesDeTiempo - tiempoSO) * 100 / unidadesDeTiempo
+	fmt.Printf("Tiempo utilizado por los procesos: %d (%d%%)\n", unidadesDeTiempo - tiempoSO, procesosUso)
+	soUso := tiempoSO * 100 / unidadesDeTiempo
+	fmt.Printf("Tiempo de CPU utilizado por el SO: %d (%d%%)\n", tiempoSO, soUso)
 }

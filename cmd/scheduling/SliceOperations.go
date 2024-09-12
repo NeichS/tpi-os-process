@@ -1,8 +1,8 @@
-package fcfs
+package scheduling
 
 import "github/NeichS/simu/internal/structs"
 
-func remove(procesos []*structs.Process, element structs.Process) []*structs.Process {
+func Remove(procesos []*structs.Process, element structs.Process) []*structs.Process {
 	index := -1
 	for i, v := range procesos {
 		if v.PID == element.PID {
