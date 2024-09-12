@@ -7,7 +7,7 @@ import (
 
 
 
-func ImprimirResultados(listaProcesosTerminados []*s.Process, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO int) {
+func ImprimirResultados(listaProcesosTerminados []*s.Process, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO, desperdicio int) {
 	sumaTiempos := 0
 	fmt.Println()
 	for _, element := range listaProcesosTerminados {
@@ -23,8 +23,9 @@ func ImprimirResultados(listaProcesosTerminados []*s.Process, unidadesDeTiempo, 
 	fmt.Println()
 	fmt.Printf("Tiempo retorno de la tanda: %d\n", unidadesDeTiempo - tiempoPrimerProceso)
 	fmt.Printf("Tiempo medio de retorno de la tanda: %d\n",sumaTiempos / procesosTotales)
-	procesosUso := (unidadesDeTiempo - tiempoSO) * 100 / unidadesDeTiempo
-	fmt.Printf("Tiempo utilizado por los procesos: %d (%d%%)\n", unidadesDeTiempo - tiempoSO, procesosUso)
+	fmt.Printf("Tiempo desperdiciado: %d\n", desperdicio)
+	procesosUso := (unidadesDeTiempo - tiempoSO - desperdicio) * 100 / unidadesDeTiempo
+	fmt.Printf("Tiempo utilizado por los procesos: %d (%d%%)\n", unidadesDeTiempo - tiempoSO - desperdicio, procesosUso)
 	soUso := tiempoSO * 100 / unidadesDeTiempo
 	fmt.Printf("Tiempo de CPU utilizado por el SO: %d (%d%%)\n", tiempoSO, soUso)
 }

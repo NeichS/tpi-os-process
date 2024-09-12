@@ -20,6 +20,8 @@ func updateAllCounters(tiempo int, so ...string) {
 
 	if len(so) == 0 {
 		tiempoSO++
+	} else if so[0] == "desperdicio" {
+		desperdicio++
 	}
 }
 
@@ -29,7 +31,7 @@ var colaProcesosListos Queue
 var listaProcesosListos []*Process
 
 var listaProcesosBloqueados []*Process
-
+var desperdicio int
 var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
 var tiempoSO int
@@ -44,6 +46,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) []s
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
 	var logs []string
+	desperdicio = 0
 
 	for cantidadProcesosTerminados < procesosTotales {
 
@@ -118,12 +121,12 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) []s
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
 			updateAllCounters(1, "tiempo que no usa el SO")
 		} else {
-			updateAllCounters(1, "nadie usa el cpu")
+			updateAllCounters(1, "desperdicio")
 		}
 
 	}
 
-	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO, desperdicio)
 
 	return logs
 }

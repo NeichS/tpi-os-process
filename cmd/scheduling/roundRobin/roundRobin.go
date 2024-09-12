@@ -22,6 +22,8 @@ func updateAllCounters(tiempo int, so ...string) {
 
 	if len(so) == 0 {
 		tiempoSO++
+	} else if so[0] == "desperdicio" {
+		desperdicio++
 	}
 }
 
@@ -33,6 +35,7 @@ var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
 var tiempoSO int
 var quantumUsage int
+var desperdicio int
 
 func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, quantum int) []string {
 
@@ -46,6 +49,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 
 	var logs []string
 	quantumUsage = 0
+	desperdicio = 0
 
 	for cantidadProcesosTerminados < procesosTotales {
 
@@ -131,11 +135,11 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp, 
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
 			updateAllCounters(1, "tiempo que no usa el SO")
 		} else {
-			updateAllCounters(1, "nadie usa el cpu")
+			updateAllCounters(1, "desperdicio")
 		}
 
 	}
 
-	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO, desperdicio)
 	return logs
 }

@@ -20,11 +20,13 @@ func updateAllCounters(tiempo int, so ...string) {
 
 	if len(so) == 0 {
 		tiempoSO++
+	} else if so[0] == "desperdicio" {
+		desperdicio++
 	}
 }
 
 var procesoEjecutando *Process
-
+var desperdicio int
 var colaProcesosListos Queue
 var listaProcesosListos []*Process
 
@@ -120,10 +122,10 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, tip, tfp, tcp int) []
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
 			updateAllCounters(1, "tiempo que no usa el SO")
 		} else {
-			updateAllCounters(1, "nadie usa el cpu")
+			updateAllCounters(1, "desperdicio")
 		}
 	}
 
-	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO, desperdicio)
 	return logs
 }

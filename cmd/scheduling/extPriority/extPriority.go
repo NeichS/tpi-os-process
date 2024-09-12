@@ -21,15 +21,16 @@ func updateAllCounters(tiempo int, so ...string) {
 	//siempre le sumo tiempo de uso al SO excepto cuando lo usa un proceso o se desperdicia la rafaga
 	if len(so) == 0 {
 		tiempoSO++
+	} else if so[0] == "desperdicio" {
+		desperdicio++
 	}
-
 }
 
 var procesoEjecutando *Process
 
 var colaProcesosListos Queue
 var listaProcesosListos []*Process
-
+var desperdicio int
 var listaProcesosBloqueados []*Process
 var listaProcesosTerminados []*Process
 var unidadesDeTiempo int
@@ -41,7 +42,7 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 	cantidadProcesosTerminados := 0
 	colaProcesosListos = *NewQueue()
 	unidadesDeTiempo = 0
-
+	desperdicio = 0
 	// red := "\033[31m"
 	// reset := "\033[0m"
 
@@ -137,12 +138,12 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, tip, tfp,
 			procesoEjecutando.PCB.TiempoRafagaEmitido++ //recibe su cuota de cpu
 			updateAllCounters(1, "tiempo que no usa el SO")
 		} else {
-			updateAllCounters(1, "nadie usa el cpu")
+			updateAllCounters(1, "desperdicio")
 		}
 
 	}
 
-	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO)
+	s.ImprimirResultados(listaProcesosTerminados, unidadesDeTiempo, tiempoPrimerProceso, procesosTotales, tiempoSO, desperdicio)
 
 	return logs
 }
