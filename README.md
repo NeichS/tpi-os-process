@@ -7,6 +7,8 @@ Dependencias minimas:
 - go
 - make (opcional, sirve para compilar y ejecutar a traves de un comando mas corto) ```sudo apt install make``` 
 
+Crear una carpeta 
+
 Para ejecutar el programa puede hacerlo simplemente ejecutando el makefile:
 
     make run
@@ -23,7 +25,7 @@ Si desea ingresar un archivo debe colocarlo dentro de la carpeta csv-files y lue
     make run PARAM=<nombre-del-archivo.csv>
     ./bin/main <nombre-del-archivo.csv> #si no utiliza make
 
-El archivo generado con los logs del programa se encontrará dentro de la carpeta **output**
+El archivo generado con los logs del programa se generará en raiz con el nombre de logs.txt 
 
 ## Supuestos:
 

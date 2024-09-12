@@ -173,7 +173,7 @@ func main() {
 }
 
 func createArchive(logs []string) {
-	file, err := os.Create("output/logs.txt")
+	file, err := os.Create("logs.txt")
 	if err != nil {
 		fmt.Println("Error creando el archivo:", err)
 		return
