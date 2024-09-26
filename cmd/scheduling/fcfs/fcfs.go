@@ -54,6 +54,13 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []
 	tiempoSO = 0
 	for cantidadProcesosTerminados < procesosTotales {
 
+		//listo a corriendo
+		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
+			procesoEjecutando = colaProcesosListos.Dequeue()
+			listaProcesosListos = s.Remove(listaProcesosListos, *procesoEjecutando)
+			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
+		}
+		
 		if procesoEjecutando != nil {
 			//corriendo a terminado
 			if procesoEjecutando.PCB.RafagasCompletadas == procesoEjecutando.BurstNeeded {
@@ -136,12 +143,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []
 		for _, proceso := range procesosParaEliminarNuevos {
 			procesosNuevos = s.Remove(procesosNuevos, *proceso)
 		}
-		//listo a corriendo
-		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
-			procesoEjecutando = colaProcesosListos.Dequeue()
-			listaProcesosListos = s.Remove(listaProcesosListos, *procesoEjecutando)
-			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
-		}
+		
 
 		//Pregunto donde uso la rafaga del cpu
 		if cantidadProcesosTerminados != procesosTotales {
@@ -211,12 +213,10 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []
 					}
 				}
 				updateAllCounters(1)
-			} else if procesoEjecutando != nil {
-				if procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
-					procesoEjecutando.PCB.TiempoRafagaEmitido++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
-					updateAllCounters(1, "proceso usa cpu")
-				} 
+			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
+				procesoEjecutando.PCB.TiempoRafagaEmitido++
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
+				updateAllCounters(1, "proceso usa cpu")
 			} else {
 				logs = append(logs, fmt.Sprintf("Tiempo %d: Se desperdicio una rafaga de cpu \n", unidadesDeTiempo))
 				updateAllCounters(1, "desperdicio")

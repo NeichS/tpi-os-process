@@ -23,7 +23,7 @@ func ImprimirResultados(listaProcesosTerminados []*s.Process, unidadesDeTiempo, 
 	fmt.Println()
 	fmt.Printf("Tiempo retorno de la tanda: %d\n", unidadesDeTiempo - tiempoPrimerProceso)
 	fmt.Printf("Tiempo medio de retorno de la tanda: %d\n",sumaTiempos / procesosTotales)
-	fmt.Printf("Tiempo desperdiciado: %d\n", desperdicio)
+	fmt.Printf("Tiempo desperdiciado: %d (%d%%)\n", desperdicio, desperdicio * 100 / unidadesDeTiempo)
 	procesosUso := (unidadesDeTiempo - tiempoSO - desperdicio) * 100 / unidadesDeTiempo
 	fmt.Printf("Tiempo utilizado por los procesos: %d (%d%%)\n", unidadesDeTiempo - tiempoSO - desperdicio, procesosUso)
 	soUso := tiempoSO * 100 / unidadesDeTiempo

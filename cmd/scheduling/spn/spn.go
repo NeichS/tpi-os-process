@@ -52,8 +52,15 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 	colaProcesosT = *NewQueue() //cola de procesos que ejecutan una operacion de SO (TIP, TCP o TFP)
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
-	for cantidadProcesosTerminados < procesosTotales {
+	for cantidadProcesosTerminados < procesosTotales  {
 
+		//listo a corriendo
+		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
+			procesoEjecutando = colaProcesosListos.Dequeue()
+			listaProcesosListos = s.Remove(listaProcesosListos, *procesoEjecutando)
+			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
+		}
+		
 		if procesoEjecutando != nil {
 			//corriendo a terminado
 			if procesoEjecutando.PCB.RafagasCompletadas == procesoEjecutando.BurstNeeded {
@@ -91,7 +98,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TCP por operacion I/O\n", unidadesDeTiempo, procesoEjecutando.PID))
 						}
 					}
-
+					
 				}
 			}
 			//corriendo a listo no hay interrupciones debido a que es no preemptive
@@ -136,12 +143,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 		for _, proceso := range procesosParaEliminarNuevos {
 			procesosNuevos = s.Remove(procesosNuevos, *proceso)
 		}
-		//listo a corriendo
-		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
-			procesoEjecutando = colaProcesosListos.Dequeue()
-			listaProcesosListos = s.Remove(listaProcesosListos, *procesoEjecutando)
-			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
-		}
+		
 
 		//Pregunto donde uso la rafaga del cpu
 		if cantidadProcesosTerminados != procesosTotales {
@@ -214,14 +216,11 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					}
 				}
 				updateAllCounters(1)
-			} else if procesoEjecutando != nil {
-				if procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
-					procesoEjecutando.PCB.TiempoRafagaEmitido++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
+			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
+				procesoEjecutando.PCB.TiempoRafagaEmitido++
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
 
-					updateAllCounters(1, "proceso usa cpu")
-				}
-
+				updateAllCounters(1, "proceso usa cpu")
 			} else {
 				logs = append(logs, fmt.Sprintf("Tiempo %d: Se desperdicio una rafaga de cpu \n", unidadesDeTiempo))
 				updateAllCounters(1, "desperdicio")
