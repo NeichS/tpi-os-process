@@ -145,10 +145,10 @@ func main() {
 			_, err = fmt.Scanln(&quantumInput) // Corregido: escanea la referencia
 			if err == nil {
 				quantum, err = strconv.Atoi(quantumInput)
-				if err == nil {
+				if err == nil && quantum >= tcp{
 					break
 				}
-				fmt.Println("Error: ingrese un número válido para el quantum.")
+				fmt.Printf("Error: ingrese un número válido para el quantum, debe ser mayor al tcp %d.\n", tcp)
 			}
 		}
 	}
