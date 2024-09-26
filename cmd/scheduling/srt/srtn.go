@@ -52,7 +52,7 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 	colaProcesosT = *NewQueue() //cola de procesos que ejecutan una operacion de SO (TIP, TCP o TFP)
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
-	for cantidadProcesosTerminados < procesosTotales  {
+	for cantidadProcesosTerminados < procesosTotales {
 
 		if procesoEjecutando != nil {
 			//corriendo a terminado
@@ -65,7 +65,7 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					procesoEjecutando = nil
 				} else if procesoEjecutando.PCB.OperacionSOActual != "TFP" {
 					procesoEjecutando.PCB.OperacionSOActual = "TFP"
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TFP\n", unidadesDeTiempo, procesoEjecutando.PID))
+					//logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TFP\n", unidadesDeTiempo, procesoEjecutando.PID))
 					colaProcesosT.Enqueue(procesoEjecutando)
 					listaProcesosSO = append(listaProcesosSO, procesoEjecutando)
 				}
@@ -242,11 +242,14 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					}
 				}
 				updateAllCounters(1)
-			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
-				procesoEjecutando.PCB.TiempoRafagaEmitido++
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
+			} else if procesoEjecutando != nil {
+				if procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
+					procesoEjecutando.PCB.TiempoRafagaEmitido++
+					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
 
-				updateAllCounters(1, "proceso usa cpu")
+					updateAllCounters(1, "proceso usa cpu")
+				}
+
 			} else {
 				logs = append(logs, fmt.Sprintf("Tiempo %d: Se desperdicio una rafaga de cpu \n", unidadesDeTiempo))
 				updateAllCounters(1, "desperdicio")
