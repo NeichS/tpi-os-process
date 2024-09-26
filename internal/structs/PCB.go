@@ -7,6 +7,10 @@ type PCB struct {
 	TiempoEnListo            int
 	TiempoRetorno            int
 	TiempoRetornoNormalizado int
+	TiempoTCP                int
+	TiempoTIP                int
+	TiempoTFP                int
+	OperacionSOActual        string //TFP, TCP TIP o vacio
 }
 
 func NewPCB() *PCB {
@@ -15,5 +19,9 @@ func NewPCB() *PCB {
 		TiempoRafagaEmitido:   0,
 		TiempoRafagaIOEmitido: 0,
 		TiempoEnListo:         0,
+		TiempoTIP:             0,
+		TiempoTCP:             0,
+		TiempoTFP:             0,
+		OperacionSOActual:     "",
 	}
 }

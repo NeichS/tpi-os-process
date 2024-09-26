@@ -18,7 +18,7 @@ func Remove(procesos []*structs.Process, element structs.Process) []*structs.Pro
 	return procesos
 }
 
-func Contains(slice []structs.Process, item structs.Process) bool {
+func Contains(slice []*structs.Process, item *structs.Process) bool {
 	for _, element := range slice {
 		if element.PID == item.PID {
 			return true
