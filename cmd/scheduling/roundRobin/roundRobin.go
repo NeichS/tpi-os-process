@@ -1,4 +1,4 @@
-package fcfs
+package roundrobin
 
 import (
 	"fmt"
@@ -101,7 +101,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 
 				}
 			}
-			//corriendo a listo no hay interrupciones debido a que es no preemptive
+			//corriendo a listo por quantum
 			if procesoEjecutando != nil {
 				if quantumUsage == quantum {
 					if procesoEjecutando.PCB.TiempoTCP == TCP {

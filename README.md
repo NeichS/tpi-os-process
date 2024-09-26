@@ -28,15 +28,6 @@ Si desea ingresar un archivo debe colocarlo dentro de la carpeta csv-files y lue
 El archivo generado con los logs del programa se generará en raiz con el nombre de logs.txt 
 
 ## Supuestos:
-
-**El tiempo avanza por vuelta, con estome refiero a la ocurrencia secuencial de las siguientes operaciones:**  
-
-1. Corriendo a Terminado.
-2. Corriendo a Bloqueado.
-3. Corriendo a Listo.
-4. Bloqueado a Listo.
-5. Nuevo a Listo.
-6. Finalmente el despacho de Listo a Corriendo.
  
 - bloqueado a listo ocurre instantaneamente.
 
