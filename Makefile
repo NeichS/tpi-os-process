@@ -1,4 +1,4 @@
-CSV ?=procesos_generados.csv
+CSV ?=procesoscorto.csv
 
 build: 
 	@echo "Compilando..."
