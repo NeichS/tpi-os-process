@@ -152,7 +152,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 				case "TIP":
 					procesoEjecutandoSO.PCB.TiempoTIP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP == TIP {
+					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
@@ -162,14 +162,14 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 				case "TCP":
 					procesoEjecutandoSO.PCB.TiempoTCP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP == TCP {
+					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
 				case "TFP":
 					procesoEjecutandoSO.PCB.TiempoTFP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP == TFP {
+					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
@@ -187,7 +187,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					}
 					procesoEjecutandoSO.PCB.TiempoTIP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP == TIP {
+					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
@@ -200,7 +200,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					}
 					procesoEjecutandoSO.PCB.TiempoTCP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP == TCP {
+					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
@@ -210,7 +210,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 					}
 					procesoEjecutandoSO.PCB.TiempoTFP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP == TFP {
+					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}

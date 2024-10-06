@@ -59,7 +59,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 	colaProcesosT = *NewQueue() //cola de procesos que ejecutan una operacion de SO (TIP, TCP o TFP)
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
-	for cantidadProcesosTerminados < procesosTotales {
+	for cantidadProcesosTerminados < procesosTotales && unidadesDeTiempo < 100{
 
 		//listo a corriendo
 		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
@@ -173,7 +173,6 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 			procesosNuevos = s.Remove(procesosNuevos, *proceso)
 		}
 		
-
 		//Pregunto donde uso la rafaga del cpu
 		if cantidadProcesosTerminados != procesosTotales {
 			if procesoEjecutandoSO != nil {
@@ -181,7 +180,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 				case "TIP":
 					procesoEjecutandoSO.PCB.TiempoTIP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP == TIP {
+					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
@@ -190,17 +189,17 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 				case "TCP":
 					procesoEjecutandoSO.PCB.TiempoTCP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP == TCP {
+					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
 				case "TFP":
 					procesoEjecutandoSO.PCB.TiempoTFP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP == TFP {
+					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
-					}
+					}	
 				}
 				updateAllCounters(1)
 
@@ -209,13 +208,12 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 				s.Remove(listaProcesosSO, *procesoEjecutandoSO)
 				switch procesoEjecutandoSO.PCB.OperacionSOActual {
 				case "TIP":
-
 					if procesoEjecutandoSO.PCB.TiempoTIP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 					}
 					procesoEjecutandoSO.PCB.TiempoTIP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP == TIP {
+					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
@@ -227,7 +225,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 					}
 					procesoEjecutandoSO.PCB.TiempoTCP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP == TCP {
+					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
@@ -237,7 +235,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 					}
 					procesoEjecutandoSO.PCB.TiempoTFP++
 					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP == TFP {
+					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
 					}
