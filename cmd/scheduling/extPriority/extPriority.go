@@ -323,6 +323,8 @@ func StartExternalPriority(procesosNuevos []*Process, procesosTotales, TIP, TFP,
 				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
 
 				updateAllCounters(1, "proceso usa cpu")
+			} else if !colaProcesosListos.IsEmpty() {
+				continue
 			} else {
 				logs = append(logs, fmt.Sprintf("Tiempo %d: Se desperdicio una rafaga de cpu \n", unidadesDeTiempo))
 				updateAllCounters(1, "desperdicio")
