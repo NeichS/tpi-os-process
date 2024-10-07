@@ -60,6 +60,52 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
 		}
 
+		
+
+		//bloqueado a listo sucede instantaneamente
+		var procesosParaEliminar []*Process
+
+		// Primero, recorres la lista y manejas los procesos que cambian de estado
+		for _, element := range listaProcesosBloqueados {
+			if element.IOBurstDuration == element.PCB.TiempoRafagaIOEmitido {
+				element.PCB.RafagasCompletadas++
+				logs = append(logs, fmt.Sprintf("Tiempo %d: Proceso %s rafagas completadas %d/%d \n", unidadesDeTiempo, element.PID, element.PCB.RafagasCompletadas, element.BurstNeeded))
+				if element.PCB.RafagasCompletadas == element.BurstNeeded {
+					element.PCB.TiempoRafagaEmitido = element.BurstDuration //si era su ultima rafaga el remaining va a ser 0
+				} else {
+					element.PCB.TiempoRafagaEmitido = 0
+				}
+				element.PCB.TiempoRafagaIOEmitido = 0
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID))
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s pasa a estado listo I/O\n", unidadesDeTiempo, element.PID))
+				colaProcesosListos.Enqueue(element)
+				colaProcesosListos.Sort("remaining")
+				listaProcesosListos = append(listaProcesosListos, element)
+				procesosParaEliminar = append(procesosParaEliminar, element) // Marcar para eliminar
+			}
+		}
+		for _, proceso := range procesosParaEliminar {
+			listaProcesosBloqueados = s.Remove(listaProcesosBloqueados, *proceso)
+		}
+
+		//nuevo a listo
+		var procesosParaEliminarNuevos []*Process // Variable para almacenar los procesos a eliminar
+
+		// Primero recorres la lista y manejas los procesos que cumplen la condición
+		for _, element := range procesosNuevos {
+			if element.ArrivalTime == unidadesDeTiempo {
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ingresa al sistema\n", unidadesDeTiempo, element.PID))
+				element.PCB.OperacionSOActual = "TIP"
+				listaProcesosSO = append(listaProcesosSO, element)
+				colaProcesosT.Enqueue(element)                                           // lo mando a ejecutar su TIP
+				procesosParaEliminarNuevos = append(procesosParaEliminarNuevos, element) // Marcar para eliminar
+			}
+		}
+		// Luego eliminas los procesos marcados de la lista original
+		for _, proceso := range procesosParaEliminarNuevos {
+			procesosNuevos = s.Remove(procesosNuevos, *proceso)
+		}
+
 		if procesoEjecutando != nil {
 			//corriendo a terminado
 			if procesoEjecutando.PCB.RafagasCompletadas == procesoEjecutando.BurstNeeded {
@@ -126,50 +172,7 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 				}
 			}
 		}
-
-		//bloqueado a listo sucede instantaneamente
-		var procesosParaEliminar []*Process
-
-		// Primero, recorres la lista y manejas los procesos que cambian de estado
-		for _, element := range listaProcesosBloqueados {
-			if element.IOBurstDuration == element.PCB.TiempoRafagaIOEmitido {
-				element.PCB.RafagasCompletadas++
-				logs = append(logs, fmt.Sprintf("Tiempo %d: Proceso %s rafagas completadas %d/%d \n", unidadesDeTiempo, element.PID, element.PCB.RafagasCompletadas, element.BurstNeeded))
-				if element.PCB.RafagasCompletadas == element.BurstNeeded {
-					element.PCB.TiempoRafagaEmitido = element.BurstDuration //si era su ultima rafaga el remaining va a ser 0
-				} else {
-					element.PCB.TiempoRafagaEmitido = 0
-				}
-				element.PCB.TiempoRafagaIOEmitido = 0
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID))
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s pasa a estado listo I/O\n", unidadesDeTiempo, element.PID))
-				colaProcesosListos.Enqueue(element)
-				listaProcesosListos = append(listaProcesosListos, element)
-				procesosParaEliminar = append(procesosParaEliminar, element) // Marcar para eliminar
-			}
-		}
-		for _, proceso := range procesosParaEliminar {
-			listaProcesosBloqueados = s.Remove(listaProcesosBloqueados, *proceso)
-		}
-
-		//nuevo a listo
-		var procesosParaEliminarNuevos []*Process // Variable para almacenar los procesos a eliminar
-
-		// Primero recorres la lista y manejas los procesos que cumplen la condición
-		for _, element := range procesosNuevos {
-			if element.ArrivalTime == unidadesDeTiempo {
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ingresa al sistema\n", unidadesDeTiempo, element.PID))
-				element.PCB.OperacionSOActual = "TIP"
-				listaProcesosSO = append(listaProcesosSO, element)
-				colaProcesosT.Enqueue(element)                                           // lo mando a ejecutar su TIP
-				procesosParaEliminarNuevos = append(procesosParaEliminarNuevos, element) // Marcar para eliminar
-			}
-		}
-		// Luego eliminas los procesos marcados de la lista original
-		for _, proceso := range procesosParaEliminarNuevos {
-			procesosNuevos = s.Remove(procesosNuevos, *proceso)
-		}
-
+		
 		//Pregunto donde uso la rafaga del cpu
 		if cantidadProcesosTerminados != procesosTotales {
 			if procesoEjecutandoSO != nil {

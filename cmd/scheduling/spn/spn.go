@@ -117,6 +117,7 @@ func StartSPN(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s finalizo su operacion de I/O\n", unidadesDeTiempo, element.PID))
 				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s pasa a estado listo I/O\n", unidadesDeTiempo, element.PID))
 				colaProcesosListos.Enqueue(element)
+				colaProcesosListos.Sort("burstDuration")
 				listaProcesosListos = append(listaProcesosListos, element)
 				procesosParaEliminar = append(procesosParaEliminar, element) // Marcar para eliminar
 			}
