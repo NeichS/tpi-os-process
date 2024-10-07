@@ -42,3 +42,5 @@ El archivo generado con los logs del programa se generará en raiz con el nombre
 - En srt cuando un proceso ejecuta su ultima operacion de entrada y salida, va a volver a requerir procesador pero su remainging time va a ser 0.
 
 - El tiempo de retorno se empieza a tomar desde el tiempo de arribo del proceso. Tiempo en el que termina - Tiempo de arribo.
+
+- Un proceso para pasar a estado terminado primero debe volver a estar en estado running, y como en mi programa yo considero que una rafaga esta compuesta por las rafagas de cpu necesarias + las rafagas de entrada y salida necesarias, entonces un proceso para terminar debera volver a ser despachado para inciar su TFP o termina instantaneamente si tfp = 0
