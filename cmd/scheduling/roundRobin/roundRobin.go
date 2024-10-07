@@ -11,7 +11,7 @@ func updateAllCounters(tiempo int, so ...string) {
 
 	if quantumUsage < quantumGlobal {
 		quantumUsage = quantumUsage + tiempo
-	} 
+	}
 	unidadesDeTiempo = unidadesDeTiempo + tiempo
 
 	for _, proceso := range listaProcesosListos {
@@ -44,7 +44,7 @@ var (
 	tiempoSO                int
 	logs                    []string
 	quantumUsage            int
-	quantumGlobal int
+	quantumGlobal           int
 )
 
 func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, quantum int) []string {
@@ -59,7 +59,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 	colaProcesosT = *NewQueue() //cola de procesos que ejecutan una operacion de SO (TIP, TCP o TFP)
 	tiempoPrimerProceso := -1
 	tiempoSO = 0
-	for cantidadProcesosTerminados < procesosTotales && unidadesDeTiempo < 100{
+	for cantidadProcesosTerminados < procesosTotales && unidadesDeTiempo < 100 {
 
 		//listo a corriendo
 		if procesoEjecutando == nil && !colaProcesosListos.IsEmpty() {
@@ -68,7 +68,7 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 			quantumUsage = 0
 			logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s fue despachado\n", unidadesDeTiempo, procesoEjecutando.PID))
 		}
-		
+
 		if procesoEjecutando != nil {
 			//corriendo a terminado
 			if procesoEjecutando.PCB.RafagasCompletadas == procesoEjecutando.BurstNeeded {
@@ -172,75 +172,117 @@ func StartRoundRobin(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP, 
 		for _, proceso := range procesosParaEliminarNuevos {
 			procesosNuevos = s.Remove(procesosNuevos, *proceso)
 		}
-		
+
 		//Pregunto donde uso la rafaga del cpu
 		if cantidadProcesosTerminados != procesosTotales {
 			if procesoEjecutandoSO != nil {
 				switch procesoEjecutandoSO.PCB.OperacionSOActual {
 				case "TIP":
-					procesoEjecutandoSO.PCB.TiempoTIP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
+					if TIP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
 						procesoEjecutandoSO = nil
+					} else {
+						procesoEjecutandoSO.PCB.TiempoTIP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
+						if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							colaProcesosListos.Enqueue(procesoEjecutandoSO)
+							listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
+							procesoEjecutandoSO = nil
+						}
 					}
 				case "TCP":
-					procesoEjecutandoSO.PCB.TiempoTCP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
+					if TFP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
+					} else {
+						procesoEjecutandoSO.PCB.TiempoTCP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
+						if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							procesoEjecutandoSO = nil
+						}
+						updateAllCounters(1)
 					}
+
 				case "TFP":
-					procesoEjecutandoSO.PCB.TiempoTFP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
+					if TFP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
-					}	
+					} else {
+						procesoEjecutandoSO.PCB.TiempoTFP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
+						if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							procesoEjecutandoSO = nil
+						}
+						updateAllCounters(1)
+					}
+
 				}
-				updateAllCounters(1)
 
 			} else if !colaProcesosT.IsEmpty() {
 				procesoEjecutandoSO = colaProcesosT.Dequeue()
 				s.Remove(listaProcesosSO, *procesoEjecutandoSO)
 				switch procesoEjecutandoSO.PCB.OperacionSOActual {
 				case "TIP":
-					if procesoEjecutandoSO.PCB.TiempoTIP == 0 {
-						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
-					}
-					procesoEjecutandoSO.PCB.TiempoTIP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
-					if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
+					if TIP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
 						procesoEjecutandoSO = nil
+					} else {
+						if procesoEjecutandoSO.PCB.TiempoTIP == 0 {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+						}
+						procesoEjecutandoSO.PCB.TiempoTIP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TIP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTIP, TIP))
+						if procesoEjecutandoSO.PCB.TiempoTIP >= TIP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TIP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							colaProcesosListos.Enqueue(procesoEjecutandoSO)
+							listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
+							procesoEjecutandoSO = nil
+						}
+						updateAllCounters(1)
 					}
+
 				case "TCP":
-					if procesoEjecutandoSO.PCB.TiempoTCP == 0 {
-						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
-					}
-					procesoEjecutandoSO.PCB.TiempoTCP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
-					if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
+					if TCP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
+					} else {
+						if procesoEjecutandoSO.PCB.TiempoTCP == 0 {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+						}
+						procesoEjecutandoSO.PCB.TiempoTCP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TCP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTCP, TCP))
+						if procesoEjecutandoSO.PCB.TiempoTCP >= TCP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TCP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							procesoEjecutandoSO = nil
+						}
+						updateAllCounters(1)
 					}
+
 				case "TFP":
-					if procesoEjecutandoSO.PCB.TiempoTFP == 0 {
-						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
-					}
-					procesoEjecutandoSO.PCB.TiempoTFP++
-					logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
-					if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
+					if TFP == 0 {
 						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						procesoEjecutandoSO = nil
+					} else {
+						if procesoEjecutandoSO.PCB.TiempoTFP == 0 {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s comienza a ejecutar su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+						}
+						procesoEjecutandoSO.PCB.TiempoTFP++
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó su TFP %d/%d \n", unidadesDeTiempo, procesoEjecutandoSO.PID, procesoEjecutandoSO.PCB.TiempoTFP, TFP))
+						if procesoEjecutandoSO.PCB.TiempoTFP >= TFP {
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s terminó su TFP \n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+							procesoEjecutandoSO = nil
+						}
+						updateAllCounters(1)
 					}
 				}
-				updateAllCounters(1)
+
 			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
 				procesoEjecutando.PCB.TiempoRafagaEmitido++
 				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
