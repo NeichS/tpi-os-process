@@ -150,7 +150,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []
 				switch procesoEjecutandoSO.PCB.OperacionSOActual {
 				case "TIP":
 					if TIP == 0 {
-						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s no ejecuta TIP porque es 0\n", unidadesDeTiempo, procesoEjecutandoSO.PID))
+						logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s no ejecutó TIP porque es 0\n", unidadesDeTiempo, procesoEjecutandoSO.PID))
 						colaProcesosListos.Enqueue(procesoEjecutandoSO)
 						listaProcesosListos = append(listaProcesosListos, procesoEjecutandoSO)
 						procesoEjecutandoSO = nil
@@ -253,7 +253,7 @@ func StartFcfs(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []
 				}
 			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
 				procesoEjecutando.PCB.TiempoRafagaEmitido++
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
 				updateAllCounters(1, "proceso usa cpu")
 			} else if !colaProcesosListos.IsEmpty() {
 				continue

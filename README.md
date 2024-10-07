@@ -44,3 +44,5 @@ El archivo generado con los logs del programa se generará en raiz con el nombre
 - El tiempo de retorno se empieza a tomar desde el tiempo de arribo del proceso. Tiempo en el que termina - Tiempo de arribo.
 
 - Un proceso para pasar a estado terminado primero debe volver a estar en estado running, y como en mi programa yo considero que una rafaga esta compuesta por las rafagas de cpu necesarias + las rafagas de entrada y salida necesarias, entonces un proceso para terminar debera volver a ser despachado para inciar su TFP o termina instantaneamente si tfp = 0
+
+- El quamntum comienza a ser utilizado en el momento que se despacha un proceso

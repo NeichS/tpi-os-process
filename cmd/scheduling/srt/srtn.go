@@ -110,7 +110,7 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 							colaProcesosListos.Enqueue(procesoEjecutando)
 							colaProcesosListos.Sort("remaining")
 							procesoEjecutando.PCB.OperacionSOActual = ""
-							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s pasa a estado bloqueado\n", unidadesDeTiempo, procesoEjecutando.PID))
+							logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s pasa a estado listo\n", unidadesDeTiempo, procesoEjecutando.PID))
 							procesoEjecutando.PCB.TiempoTCP = 0
 							procesoEjecutando = nil
 						} else {
@@ -288,7 +288,7 @@ func StartSRT(procesosNuevos []*Process, procesosTotales, TIP, TFP, TCP int) []s
 				}
 			} else if procesoEjecutando != nil && procesoEjecutando.BurstNeeded > procesoEjecutando.PCB.RafagasCompletadas {
 				procesoEjecutando.PCB.TiempoRafagaEmitido++
-				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecuta rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
+				logs = append(logs, fmt.Sprintf("Tiempo %d: El proceso %s ejecutó rafaga de CPU %d/%d \n", unidadesDeTiempo, procesoEjecutando.PID, procesoEjecutando.PCB.TiempoRafagaEmitido, procesoEjecutando.BurstDuration))
 
 				updateAllCounters(1, "proceso usa cpu")
 			} else if !colaProcesosListos.IsEmpty() {
